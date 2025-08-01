@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSRP Army Corps Application</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body {
+      margin: 0;
+      color: white;
+      background: linear-gradient(-45deg, #0d1f14, #143d1a, #1a4d1f, #0f2e18);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    header { padding: 20px; text-align: center; font-size: 2em; font-weight: bold; }
+    .container { max-width: 850px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
+    .section { background-color: rgba(15, 31, 20, 0.9); margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
+    .section summary { padding: 15px; cursor: pointer; font-size: 1.2em; background-color: rgba(10, 20, 12, 0.95); user-select: none; }
+    .section form > div { padding: 15px; border-top: 1px solid #2c4a35; }
+    input, textarea, select {
+      width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px;
+      border: none; border-radius: 5px;
+    }
+    input[type="checkbox"], input[type="radio"] { width: auto; margin-right: 10px; }
+    .submit-button { background: #2a7b3f; color: white; padding: 12px 25px; font-size: 1em; border: none; border-radius: 6px; cursor: pointer; }
+    .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .logo { width: 100px; display: block; margin: 0 auto 20px; }
+    .background-logo {
+      position: fixed; top: 50%; left: 50%; width: 400px; opacity: 0.05;
+      transform: translate(-50%, -50%); z-index: 1; animation: fadeLogo 6s ease-in-out infinite;
+    }
+    @keyframes fadeLogo { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.12; } }
+    .map-image { width: 100%; margin-bottom: 15px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <img src="logo1.png" alt="Watermark Logo" class="background-logo">
+  <div class="container">
+    <img src="logo1.png" class="logo" alt="PSRP Logo">
+    <header>PSRP Army Corps Application</header>
+    <form id="applicationForm"></form>
+  </div>
+<script>
+const sections = [
+  {
+    title: "Section 1: Basic Information",
+    questions: [
+      { q: "Discord Username", type: "text" },
+      { q: "Discord ID", type: "text" },
+      { q: "Roblox Username", type: "text" },
+      { q: "Roblox ID", type: "text" },
+      { q: "Age", type: "text" },
+      { q: "Time Zone", type: "text" },
+      { q: "Have you ever served in a roleplay military group before?", type: "yesno" },
+      { q: "If yes, list which groups and ranks.", type: "text" }
+    ]
+  },
+  {
+    title: "Section 2: Army Corps Knowledge",
+    questions: [
+      { q: "What does the chain of command mean?", type: "text" },
+      { q: "Who is the highest-ranking officer in the Army Corps?", type: "text" },
+      { q: "Which of these are valid radio protocols?", type: "checkbox", options: ["Over", "Out", "10-4", "Roger", "Loud and Clear"] }
+    ]
+  },
+  {
+    title: "Section 3: 10-Codes & Communication",
+    questions: [
+      { q: "What does 10-4 mean?", type: "text" },
+      { q: "Select the meaning of 10-20", type: "radio", options: ["Location", "Emergency", "Return to base", "Under attack"] },
+      { q: "What does 10-33 mean?", type: "text" },
+      { q: "Select all that apply for 10-7", type: "checkbox", options: ["Out of service", "Available", "Returning to base", "Off duty"] },
+      { q: "Explain why clear communication is important in the Army Corps.", type: "text" }
+    ]
+  },
+  {
+    title: "Section 4: Rules & Regulations",
+    questions: [
+      { q: "What does PiT stand for?", type: "text" },
+      { q: "What is “Friendly Fire” and why is it prohibited?", type: "text" },
+      { q: "Select all examples of tool abuse:", type: "checkbox", options: ["Exploiting glitches", "Using tools in unintended ways", "Spawn killing", "Flying vehicles without permission"] },
+      { q: "What happens if you break uniform policy?", type: "text" },
+      { q: "What does FRP stand for in RP?", type: "text" }
+    ]
+  },
+  {
+    title: "Section 5: Scenarios",
+    questions: [
+      { q: "You are leading a convoy and one vehicle is ambushed. What do you do first?", type: "text" },
+      { q: "You hear '10-33' on the radio, what’s your action plan?", type: "text" },
+      { q: "The commanding officer gives an order you don’t agree with. How do you respond?", type: "text" },
+      { q: "A recruit fires without permission during a peace-time patrol. What’s your action?", type: "text" }
+    ]
+  },
+  {
+    title: "Section 6: Map Grid Check",
+    questions: [
+      { q: "Check the boxes for the locations (City Gas Station, Housing Suburb, High Rock Entrance, Police Station)", type: "grid" }
+    ]
+  },
+  {
+    title: "Section 7: Final Confirmation",
+    questions: [
+      { q: "Do you understand that you are required to follow all rules both on and off duty?", type: "yesno" },
+      { q: "Do you understand that false information will result in removal?", type: "yesno" },
+      { q: "Sign with your Roblox username to confirm.", type: "text" },
+      { q: "Anything else you’d like to add? (Optional)", type: "text" }
+    ]
+  }
+];
+
+const form = document.getElementById('applicationForm');
+
+sections.forEach(section => {
+  const details = document.createElement('details');
+  details.className = 'section';
+  const summary = document.createElement('summary');
+  summary.textContent = section.title;
+  details.appendChild(summary);
+
+  const innerDiv = document.createElement('div');
+
+  section.questions.forEach(item => {
+    const label = document.createElement('label');
+    label.innerHTML = item.q;
+
+    if (item.type === "text") {
+      const input = document.createElement('textarea');
+      input.name = item.q;
+      input.rows = 3;
+      innerDiv.appendChild(label);
+      innerDiv.appendChild(input);
+    }
+    else if (item.type === "yesno") {
+      ["Yes", "No"].forEach(opt => {
+        const radioLabel = document.createElement('label');
+        radioLabel.style.display = 'block';
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = item.q;
+        radio.value = opt;
+        radioLabel.appendChild(radio);
+        radioLabel.appendChild(document.createTextNode(opt));
+        innerDiv.appendChild(radioLabel);
+      });
+    }
+    else if (item.type === "checkbox") {
+      item.options.forEach(opt => {
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.style.display = 'block';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = item.q;
+        checkbox.value = opt;
+        checkboxLabel.appendChild(checkbox);
+        checkboxLabel.appendChild(document.createTextNode(opt));
+        innerDiv.appendChild(checkboxLabel);
+      });
+    }
+    else if (item.type === "radio") {
+      item.options.forEach(opt => {
+        const radioLabel = document.createElement('label');
+        radioLabel.style.display = 'block';
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = item.q;
+        radio.value = opt;
+        radioLabel.appendChild(radio);
+        radioLabel.appendChild(document.createTextNode(opt));
+        innerDiv.appendChild(radioLabel);
+      });
+    }
+    else if (item.type === "grid") {
+      const mapImage = document.createElement('img');
+      mapImage.src = "map.png";
+      mapImage.className = "map-image";
+      innerDiv.appendChild(mapImage);
+
+      const grid = document.createElement('div');
+      grid.className = 'grid-container';
+      for (let i = 0; i < 25; i++) {
+        const checkboxLabel = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'grid';
+        checkbox.value = `Box ${i+1}`;
+        checkboxLabel.appendChild(checkbox);
+        checkboxLabel.append(`Box ${i+1}`);
+        grid.appendChild(checkboxLabel);
+      }
+      innerDiv.appendChild(label);
+      innerDiv.appendChild(grid);
+    }
+  });
+
+  details.appendChild(innerDiv);
+  form.appendChild(details);
+});
+
+// ✅ Fetch logged-in Discord user & autofill fields
+fetch("/me").then(res => res.json()).then(user => {
+  if (!user || !user.username) return;
+  document.querySelectorAll("textarea[name='Discord Username']").forEach(el => el.value = `${user.username}#${user.discriminator}`);
+  document.querySelectorAll("textarea[name='Discord ID']").forEach(el => el.value = user.id);
+});
+
+const submitBtn = document.createElement('button');
+submitBtn.textContent = 'Submit Application';
+submitBtn.className = 'submit-button';
+submitBtn.type = 'button';
+submitBtn.onclick = submitApplication;
+form.appendChild(submitBtn);
+
+function submitApplication() {
+  const formData = new FormData(form);
+  const selections = [];
+  formData.forEach((val, key) => {
+    selections.push(`**${key}**:\n${val}`);
+  });
+
+  const embed = {
+    title: "New Army Corps Application",
+    color: 3447003,
+    description: selections.join("\n\n"),
+    timestamp: new Date().toISOString()
+  };
+
+  fetch("/submit", { // ✅ send to /submit
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ embeds: [embed] })
+  }).then(() => {
+    alert("Application Submitted");
+    form.reset();
+  }).catch(err => {
+    alert("Submission failed.");
+    console.error(err);
+  });
+}
+</script>
+</body>
+</html>
